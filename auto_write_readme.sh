@@ -12,6 +12,8 @@ do
     f1=${paths}/$i
     if test -d $f1
     then
+        echo "-------" >> $readme_md
+        echo "-------" >> $readme_md
         echo "#"$i >> $readme_md
         #一级标题
         echo ''
