@@ -26,7 +26,9 @@
 ##### my_inception_v3.py
 ##### tf_1.0_my_inception_resnet.py
 ##### tf_1.0_my_inception_v1.py
+##### tf_1.0_my_inception_v2.py
 ##### tf_1.0_my_inception_v3.py
+##### tf_1.0_my_inception_v4.py
 -------
 ### preprocess
 ##### change_ckpt_to_var_name_list.py
