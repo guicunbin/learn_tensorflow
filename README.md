@@ -35,12 +35,12 @@
 -------
 -------
 #reinforce_learning
-## test1.py
-## test2.py
+##### test1.py
+##### test2.py
 -------
 -------
 -------
 #stock_predicting
-## adaboost_to_predict.py
-## just_use_sklearn_to_predict_stock.py
-## use_sklearn_to_datacaslte.py
+##### adaboost_to_predict.py
+##### just_use_sklearn_to_predict_stock.py
+##### use_sklearn_to_datacaslte.py

@@ -32,7 +32,8 @@ do
                     #三级标题
                 done
             else
-                echo "##" $j >> $readme_md
+                #如果是文件的话，就用三级标题
+                echo "#####" $j >> $readme_md
                 
             fi
         done
