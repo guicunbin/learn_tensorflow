@@ -41,4 +41,4 @@ with open(var_path,'r') as fr:
 with open(new_var_path,"w") as fw:
     for i in range(len(new_var_li)):
         fw.writelines(new_var_li[i])
-
+print "success get the var_name !"
