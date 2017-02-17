@@ -14,21 +14,26 @@ do
     then
         echo "-------" >> $readme_md
         echo "-------" >> $readme_md
+        echo "-------" >> $readme_md
         echo "#"$i >> $readme_md
         #一级标题
         echo ''
         for j in $(ls ${f1})
         do
-            echo "##" $j >> $readme_md
-            #二级标题
             f2=$f1/$j
             if test -d $f2
             then
+                echo "-------" >> $readme_md
+                echo "###" $j >> $readme_md
+                #二级标题
                 for k in $(ls ${f2})
                 do 
-                    echo "###"  $k >> $readme_md
+                    echo "#####"  $k >> $readme_md
                     #三级标题
                 done
+            else
+                echo "##" $j >> $readme_md
+                
             fi
         done
     fi
