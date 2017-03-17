@@ -19,6 +19,31 @@
 -------
 -------
 -------
+#data_competition_2017_03
+-------
+### feature_engineering
+##### \
+##### add_median_feature.py
+##### auto_write_sql.py
+##### change_zh_to_number.sql
+##### deal_the_results.sql
+##### delete_column_index_of_sql.py
+##### delete_duplicate_index_of_sql.py
+##### feature_of_tianchi_2017_03_v3_add.sql
+##### feature_of_tianchi_2017_03_v3.sql
+##### get_dumpies.py
+##### get_the_avg_of_every_shop_to_submit.sql
+##### get_the_forward_7_day_of_every_shop_to_submit.sql
+##### read_all_csv_to_sql.py
+##### read_csv_to_sql.py
+##### use_get_dumpies_py.sh
+-------
+### model_train
+##### Lightgbm_tianchi.py
+##### rnn_to_predict.py
+-------
+-------
+-------
 #reinforce_learning
 ##### test1.py
 ##### test2.py

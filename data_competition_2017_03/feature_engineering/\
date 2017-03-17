@@ -1,0 +1,164 @@
+--## create table user_pay_new,   user_view_new
+create table if not exists user_pay_new as 
+select user_id,shop_id,str_to_date(substr(time_stamp,1,10),"%Y-%m-%d") as pay_day from user_pay;
+
+
+create table if not exists user_view_new as
+select user_id,shop_id,str_to_date(substr(time_stamp,1,10),"%Y-%m-%d") as view_day from user_view;
+
+
+
+
+
+
+
+--############# for dataset user_pay ###############
+--## feature_user_pay_1   user_pay_user_id_cnt          这一年多的时间里，该用户消费的次数                               (user)
+--## feature_user_pay_2   user_pay_shop_id_cnt          这一年多的时间里，该商家被消费的次数                             (shop)  
+--## feature_user_pay_3   user_pay_user_shop_cnt        这一年多的时间里，该用户在该商家消费的次数                       (user,shop) 
+--## feature_user_pay_4   user_pay_day_user_id_cnt      该用户在该天消费的次数                                           (user,pay_day) 
+--## feature_user_pay_5   user_pay_day_shop_id_cnt      该商家在该天被消费的次数                                         (shop,pay_day)
+--## feature_user_pay_6   user_pay_user_with_shop_cnt   这一年多的时间里，与该用户有交互的商家个数,(用户的全年活跃度)    (user) 
+--## feature_user_pay_7   user_pay_shop_with_user_cnt   这一年多的时间里，与该商家有交互的用户个数,(商家的全年热度)      (shop)
+--## feature_user_pay_8   user_pay_day_shop_user_cnt    在该天，该用户在该商家消费的次数                                 (user,shop,pay_day)
+--## feature_user_pay     上面 所有 特征之外还加了几个比率值:
+--##                      user_pay_day_user_in_user_rate,    user_pay_day_shop_user_in_user_rate,    user_pay_day_shop_user_in_user_day_rate,
+--##                      user_pay_day_shop_in_shop_rate,    user_pay_day_shop_user_in_shop_rate,    user_pay_day_shop_user_in_shop_day_rate,
+--##  
+create table if not exists feature_user_pay_1 as 
+select user_id,count(*) as user_pay_user_id_cnt from
+(
+    select user_id from user_pay_new
+)t
+group by user_id;
+--#这一年多的时间里，该用户消费的次数(user)
+
+
+create table if not exists feature_user_pay_2 as 
+select shop_id,count(*) as user_pay_shop_id_cnt from
+(
+    select shop_id from user_pay_new
+)t
+group by shop_id;
+--#这一年多的时间里，该商家被消费的次数(shop)
+
+
+create table if not exists feature_user_pay_3 as 
+select user_id,shop_id,count(*) as user_pay_user_shop_cnt from
+(
+    select user_id,shop_id from user_pay_new
+)t
+group by user_id,shop_id;
+--#这一年多的时间里，该用户在该商家消费的次数(user,shop)
+
+
+
+create table if not exists feature_user_pay_4 as
+select user_id,pay_day,count(*) as user_pay_day_user_id_cnt from 
+(
+    select user_id,pay_day from user_pay_new
+)t
+group by user_id,pay_day;
+--#该用户在该天消费的次数(user,pay_day)
+
+
+
+create table if not exists feature_user_pay_5 as 
+select shop_id,pay_day,count(*) as user_pay_day_shop_id_cnt from 
+(
+    select shop_id,pay_day from user_pay_new
+)t
+group by shop_id,pay_day;
+--#该商家在该天被消费的次数(shop,pay_day)
+
+
+
+create table if not exists feature_user_pay_6 as 
+select user_id,count(*) as user_pay_user_with_shop_cnt from
+(
+    select distinct user_id,shop_id from user_pay_new
+)t
+group by user_id;
+--#这一年多的时间里，与该用户有交互的商家个数,(用户的全年活跃度)(user)
+
+
+
+create table if not exists feature_user_pay_7 as 
+select shop_id,count(*) as user_pay_shop_with_user_cnt from
+(
+    select distinct user_id,shop_id from user_pay_new
+)t
+group by shop_id;
+--#这一年多的时间里，与该商家有交互的用户个数,(商家的全年热度)(shop)
+
+
+
+create table if not exists feature_user_pay_8 as 
+select distinct user_id,shop_id,pay_day from
+user_pay_new
+group by user_id,shop_id,pay_day;
+--#在该天，该用户在该商家消费的次数(user,shop,pay_day)
+
+
+
+--# merge 
+create table if not exists feature_user_pay as 
+select f12345678.*,
+case when user_pay_user_id_cnt=0 then -1 else user_pay_day_user_id_cnt/user_pay_user_id_cnt end as user_pay_day_user_in_user_rate,
+case when user_pay_user_id_cnt=0 then -1 else user_pay_day_shop_user_cnt/user_pay_user_id_cnt end as user_pay_day_shop_user_in_user_rate,
+case when user_pay_day_user_id_cnt=0 then -1 else user_pay_day_shop_user_cnt/user_pay_day_user_id_cnt end as user_pay_day_shop_user_in_user_day_rate,
+case when user_pay_shop_id_cnt=0 then -1 else user_pay_day_shop_id_cnt/user_pay_shop_id_cnt end as user_pay_day_shop_in_shop_rate,
+case when user_pay_shop_id_cnt=0 then -1 else user_pay_day_shop_user_cnt/user_pay_shop_id_cnt end as user_pay_day_shop_user_in_shop_rate,
+case when user_pay_day_shop_id_cnt=0 then -1 else user_pay_day_shop_user_cnt/user_pay_day_shop_id_cnt end as user_pay_day_shop_user_in_shop_day_rate,
+from
+(
+select f1234568.*,
+case user_pay_shop_with_user_cnt is null then 0 else user_pay_shop_with_user_cnt end as user_pay_shop_with_user_cnt
+from
+(
+select f123468.*,
+case user_pay_day_shop_id_cnt is null then 0 else user_pay_day_shop_id_cnt end as user_pay_day_shop_id_cnt
+from
+(
+select f13468.*,
+case when user_pay_shop_id_cnt is null then 0 else user_pay_shop_id_cnt end as user_pay_shop_id_cnt
+from 
+(
+  select f3468.*,
+  case when user_pay_user_id_cnt is null then 0 else user_pay_user_id_cnt end as user_pay_user_id_cnt
+  from
+  (
+  	select f468.*,
+    case when user_pay_user_shop_cnt is null then 0 else user_pay_user_shop_cnt end as user_pay_user_shop_cnt
+    from
+  	(
+  	  select f68.*,
+      case when user_pay_day_user_id_cnt is null then 0 else user_pay_day_user_id_cnt end as user_pay_day_user_id_cnt
+      from
+  	  (
+  		select f8.*, 
+        case when user_pay_user_with_shop_cnt is null then 0 else user_pay_user_with_shop_cnt end as user_pay_user_with_shop_cnt 
+        from
+  		feature_user_pay_8 f8 left outer join feature_user_pay_6 f6 
+  		on f8.user_id=f6.user_id
+  	  )f68 left outer join feature_bank_detail_test_4 f4 
+  	  on f68.user_id=f4.user_id and f68.pay_day=f4.pay_day
+  	)f468 left outer join feature_user_pay_3 f3 
+  	on f468.user_id=f3.user_id and f468.shop_id=f3.shop_id
+  )f3468 left outer join feature_user_pay_1 f1 
+  on f3468.user_id=f1.user_id
+)f13468 left outer join feature_user_pay_2 f2
+on f13468.shop_id=f2.shop_id
+)f123468 left outer join feature_user_pay_5 f5
+on f123468.shop_id=f5.shop_id and f123468.pay_day=f5.pay_day
+)f1234568 left outer join feature_user_pay_7 f7
+on f1234568.shop_id=f7.shop_id
+)f12345678;
+
+
+
+
+
+
+
+
